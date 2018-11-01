@@ -6,6 +6,7 @@ import com.shexd.Entity.User;
 import com.shexd.util.DateUtils;
 import com.shexd.util.ExportExcel;
 import com.shexd.util.ImportExcel;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -105,6 +106,57 @@ public class ManagerController {
             users.add(user2);
             new ExportExcel("导出的数据", Manager.class,2).setDataList(users).write(response, fileName).dispose();
         } catch (Exception e) {
+        }
+    }
+
+
+    /**
+     *
+     * 导入已经填好数据的Excel，合并单元格的数据
+     * @param multipartFile
+     */
+    @RequestMapping(value = "import2",method = RequestMethod.POST)
+    public void importFile2(MultipartFile multipartFile){
+        try {
+            int successNum = 0;
+            int failureNum = 0;
+            StringBuilder failureMsg = new StringBuilder();
+            ImportExcel ei = new ImportExcel(multipartFile, 1, 0);
+            List<Manager> list = ei.getDataList(Manager.class);
+            String idcode = "";
+            String address = "";
+            for (Manager user : list){
+                try{
+                    //to do: 保存处理数据
+                    if (user.getIdCode()!=null) {
+                        idcode = user.getIdCode();
+                    }
+                    if (user.getIdCode()==null) {
+                        user.setIdCode(idcode);
+                    }
+                    if (user.getAddress()!=null) {
+                        address = user.getAddress();
+                    }
+                    if (user.getAddress()==null) {
+                        user.setAddress(address);
+                    }
+
+                    //userService.save(user);
+                    logger.info(user.toString());
+                    successNum++;
+                }catch(ConstraintViolationException ex){
+                    failureNum++;
+                }catch (Exception ex) {
+                    failureNum++;
+                }
+            }
+
+            if (failureNum>0){
+                failureMsg.insert(0, ", 失败: "+failureNum);
+            }
+            logger.info("已经操作 "+successNum+" 条数据；"+" "+"失败 "+failureNum);
+        } catch (Exception e) {
+            logger.error("导入失败",e);
         }
     }
 }
