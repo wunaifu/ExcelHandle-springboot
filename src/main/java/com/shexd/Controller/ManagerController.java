@@ -35,8 +35,8 @@ public class ManagerController {
         try {
             //定义文件名称
             String fileName = "文档模版.xlsx";
-            List<User> list = Lists.newArrayList();
-            new ExportExcel("导出的文档模版", Manager.class, 1).setDataList(list).write(response, fileName).dispose();
+            List<Manager> list = Lists.newArrayList();
+            new ExportExcel("导出的文档模版", Manager.class, 1,2).setDataList(list).write(response, fileName).dispose();
         } catch (IOException e) {
             e.printStackTrace();
         }
